@@ -1,0 +1,666 @@
+openapi: 3.0.0
+
+info:
+  title: "API Spec SD Ciwaregu Website"
+  description : "Dokumentasi API Spec untuk website SD Ciwaregu"
+  version: 1.0.0-oas3
+  license:
+    name: SD Ciwaregu license
+    url: "http://34.128.126.228:8000/"
+
+tags:
+  - name: Authentication
+    description: "Login & Register"
+  - name: Admin
+    description: ""
+  - name: Teachers
+    description: ""
+  - name: Students
+    description: ""
+  
+
+paths:
+  #endpoint register
+  /v1/register:
+    post:
+      tags:
+        - Authentication
+      summary: "Endpoint Register for new user"
+      requestBody:
+        required: true 
+        $ref: '#/components/requestBodies/registerRequestBody'
+      responses:
+        200:
+          description: Register Success
+          $ref: '#/components/responses/registerResponse'
+        400:
+          description: Client Register Error
+          $ref: '#/components/responses/clientError'
+        500:
+          description: Server Error
+          $ref: '#/components/responses/serverError'
+  
+  #endpoint login
+  /v1/login:
+    post:
+      tags:
+        - Authentication
+      summary: "Endpoint login for user"
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/loginRequestBody'
+      responses:
+        200:
+          $ref: '#/components/responses/authenticationTokenResponse'
+        400:
+          $ref: '#/components/responses/clientError'
+        500:
+          $ref: '#/components/responses/serverError'
+  
+  
+  #endpoint get galleries and create galleries
+  /v1/galleries:
+    post:
+      tags:
+        - Admin
+      summary: "Endpoint while user want to upload new gallery"
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/galleriesRequestBody'
+      responses:
+        200:
+          $ref: '#/components/responses/postGalleriesResponse'
+        400:
+          $ref: '#/components/responses/clientError'
+        500:
+          $ref: '#/components/responses/serverError'
+    get:
+      tags:
+        - Students
+        - Teachers
+      summary: "Endpoint while user request list gallery"
+      responses:
+        200:
+          $ref: '#/components/responses/getGalleriesResponse'
+        400:
+          $ref: '#/components/responses/clientError'
+        500:
+          $ref: '#/components/responses/serverError'
+  
+  #Endpoint get school stats
+  /v1/stats:
+    get:
+      tags:
+        - Students
+        - Teachers
+      summary: "Endpoint while user want to see count of teacher, student, program, and awarded"
+      responses:
+        200:
+          $ref: '#/components/responses/getStatsResponse'
+        400:
+          $ref: '#/components/responses/clientError'
+        500:
+          $ref: '#/components/responses/serverError'
+  
+  #Endpoint get all programs school
+  /v1/programs:
+    get:
+      tags:
+        - Students
+        - Teachers
+      summary: "Endpoint while user want to get all programs"
+      responses:
+        200:
+          $ref: '#/components/responses/getProgramsResponse'
+        400:
+          $ref: '#/components/responses/clientError'
+        500:
+          $ref: '#/components/responses/serverError'
+  
+  #Endpoint get all Teachers school
+  /v1/teachers:
+    post:
+      tags:
+        - Admin
+      summary: "Endpoint for create new teachers"
+      requestBody: 
+        required: true
+        $ref: '#/components/requestBodies/teacherPostRequestBody'
+      responses:
+        200:
+          $ref: '#/components/responses/postTeacherResponse'
+        400:
+          $ref: '#/components/responses/clientError'
+        500:
+          $ref: '#/components/responses/serverError'
+    get:
+      tags:
+        - Students
+        - Teachers
+      summary: "Endpoint while user want to get teachers"
+      responses:
+        200:
+          $ref: '#/components/responses/getAllTeachersResponse'
+        400:
+          $ref: '#/components/responses/clientError'
+        500:
+          $ref: '#/components/responses/serverError'
+
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Enter the token with the `Bearer: ` prefix, copy paste this example to input field "Bearer abcde12345".'
+
+  #Schema Components
+  schemas:
+    #base response schema
+    baseResponseSchema:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "success/failed"
+        code:
+          type: integer
+          description: "200"
+        message:
+          type: string
+          description: "message callback response"
+        data:
+          type: object
+          description: "Data repsonse"
+      required:
+        - status
+        - code
+        - message
+        - data
+      example:
+        status: "Success"
+        code: 200
+        message: "Message Response"
+        data: {}     
+
+    #Schema for user responses
+    userResponseSchema:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "response message"
+        email:
+          type: string
+          description: "email registered user"
+        password:
+          type: string
+          description: "password registered user"
+      example:
+        message: "Method Success"
+        email : "asdghjk@gmail.com"
+        password: "asdfghjk"
+    
+
+    # Server Rrror schema 
+    serverErrorSchema:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "failed response"
+        code:
+          type: integer
+          description: "400"
+        message:
+          type: string
+          description: "message callback response"
+      example:
+        status: "Failed"
+        code: 500
+        message: "Server Error Message"
+    
+    # Server Rrror schema 
+    clientErrorSchema:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "failed response"
+        code:
+          type: integer
+          description: "400"
+        message:
+          type: string
+          description: "message callback response"
+      example:
+        status: "Failed"
+        code: 400
+        message: "Client Error Message"
+    
+    #Unauthorized error
+    unauthorizedErrorSchema:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "failed response"
+        code:
+          type: integer
+          description: "401"
+        message:
+          type: string
+          description: "message callback response"
+      example:
+        status: "Failed"
+        code: 401
+        message: "Access token is missing"
+  
+    # schema for register user
+    registerResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/userResponseSchema'
+          example:
+            data:
+              name: "username"
+              email : "asdghjk@gmail.com"
+              password: "asdfghjk"
+
+    # schema for user login        
+    loginResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/authenticationTokenSchema'
+          required: 
+            - data
+          example:
+            data:
+              object: "authentication_token"
+              user_id: "1"
+              email: "asdfgh45@gmail.com"
+              roles: "Student"
+              authentication_token: "azJRj09l7jvR8KhTqUs3"
+    
+    #get list of gallery
+    getGalleriesResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              allOf:
+                - $ref: '#/components/schemas/unpaginatedListSchema'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/gallerySchema'
+          example:
+            data:
+              listImage:
+              - imageUrl: "https://image.io/9929"
+                title: "Photos"
+                description: "Good Photos"
+                createdAt: "02-02-2022"
+                updateAt: "02-03-2023"
+              - imageUrl: "https://image.io/1009"
+                title: "Photos 2"
+                description: "Better Photos"
+                createdAt: "02-02-2023"
+                updateAt: "02-03-2024"
+    
+    #Post Gallery response schema
+    postGalleriesResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/postGallerySchema'
+          example:
+            data:
+              title: "Photos"
+              imageUrl: "https://image.io/9929"
+              description: "Better Photos"
+
+    postTeachersResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/postTeachersSchema'
+          example:
+            data:
+              teachersId: "jajsd-kjdk-aosdol"
+              name: "John Doe"
+              imageUrl: "https://image.io/9229"
+              position: "Headschool"
+
+    #Get Stats School response Schema
+    getStatsResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/statsSchema'
+          example:
+            data:
+              teacherCount: 200
+              studentCount: 400
+              programCount: 10
+              awardCount: 100
+    
+    #Get all teachers response schema
+    getTeachersResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/teachersSchema'
+          example:
+            data:
+              - id: "nana022asd-kmaskmd-00w0-oksakd"
+                name: "upacara"
+                imageUrl: "https://example.com/ayi.jpg"
+                position: "Kepala Sekolah"
+                createdAt: "2023-05-09T02:52:55.351Z"
+                updatedAt: "2023-05-09T02:52:55.356Z"
+              - id: "nana020asd-kmaskmd-00w0-oksakd"
+                name: "Ayi Solihah"
+                imageUrl: "https://example.com/ayi-sol.jpg"
+                position: "Guru Kelas"
+                createdAt: "2023-05-09T02:54:11.636Z"
+                updatedAt: "2023-05-09T02:54:11.640Z"
+    
+    #Get all programs response schema
+    getProgramsResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/baseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/programsSchema'
+          example:
+            data:
+              - id: "nana022asd-kmaskmd-00w0-oksakd"
+                name: "upacara"
+                goal: "upacara wajib setiap hari senin"
+              - id: "nana023asd-kmaskmd-00w0-oksakd"
+                name: "rapat rutin"
+                goal: "rapat rutin membahas dan mengevaluasi program"
+
+    # schema for authentication data while user login
+    authenticationTokenSchema:
+      type: object
+      properties:
+        object:
+          type: string
+        user_id:
+          type: string
+        authentication_token:
+          type: string
+      required:
+        - object
+        - user_id
+        - authentication_token
+
+    # single object gallery schema
+    gallerySchema:
+      type: object
+      properties:
+        imageUrl: 
+          type: string
+        title: 
+          type: string
+        description: 
+          type: string
+        createdAt:
+          type: string
+        updateAt:
+          type: string
+
+    #Schema for post galleries response
+    postGallerySchema:
+      type: object
+      properties:
+        title: 
+          type: string
+        imageUrl: 
+          type: string
+        description: 
+          type: string
+
+    #Schema for post teachers response
+    postTeachersSchema:
+      type: object
+      properties:
+        teacherId: 
+          type: string
+        name: 
+          type: string
+        imageUrl: 
+          type: string
+        position: 
+          type: string
+    
+    #Schema for stats response
+    statsSchema:
+      type: object
+      properties:
+        teacherCount: 
+          type: number
+        studentCount: 
+          type: number
+        programCount: 
+          type: number
+        awardCount: 
+          type: number
+    
+    teachersSchema:
+      type: object
+      properties:
+        user_id:
+          type: string
+        name:
+          type: string
+        imageUrl: 
+          type: string
+        position:
+          type: string
+        createdAt:
+          type: string
+        updateAt:
+          type: string
+    
+    #Schema for programs response
+    programsSchema:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        goal:
+          type: string
+
+    # Schema for a list object
+    unpaginatedListSchema:
+      type: object
+      properties:
+        data:
+          type: array
+      required:
+        - data
+      example:
+  
+  #Request Body Component
+  requestBodies:
+
+    #request body for register
+    registerRequestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            properties:
+              name:
+                type: string
+                description: nama user
+              email:
+                type: string
+                description: email user
+              password:
+                type: string
+                description: password user
+            example:
+              name: "user"
+              email: "asdfgh45@gmail.com"
+              password: "Testes123"
+    #request body for login
+    loginRequestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            properties:
+              email:
+                type: string
+                description: email user
+              password:
+                type: string
+                description: password user
+            example:
+              email: "john.doe@example.com"
+              password: "password"
+    
+    #request body for galleries post
+    galleriesRequestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            properties:
+              title:
+                type: string
+                description: gallery title
+              imageUrl:
+                type: string
+                description: image link
+              description:
+                type: string
+                description: gallery description
+    
+    #request Body for teachers post
+    teacherPostRequestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            properties:
+              name:
+                type: string
+                description: teacher name
+              imageUrl:
+                type: string
+                description: image link
+              posititon:
+                type: string
+                description: teache position
+
+  #Responses Components
+  responses:
+    registerResponse:
+      description: Register Success Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/registerResponseSchema'
+
+    serverError:
+      description: Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/serverErrorSchema'
+    
+    clientError:
+      description: Client Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/clientErrorSchema'
+    
+    authorizationError:
+      description: Authorization Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/unauthorizedErrorSchema'
+
+    authenticationTokenResponse:
+      description: Login Authentication token response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/loginResponseSchema'
+
+    getGalleriesResponse:
+      description: Get List of Gallery response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/getGalleriesResponseSchema'
+    
+    postGalleriesResponse:
+      description: User create new gallery items response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/postGalleriesResponseSchema'
+    
+    getStatsResponse:
+      description: Get Stats Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/getStatsResponseSchema'
+    
+    getProgramsResponse:
+      description: Get all Programs Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/getProgramsResponseSchema'
+    
+    getAllTeachersResponse:
+      description: Get all teachers Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/getTeachersResponseSchema'
+    
+    postTeacherResponse:
+      description: Post new teacher response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/postTeachersResponseSchema'
